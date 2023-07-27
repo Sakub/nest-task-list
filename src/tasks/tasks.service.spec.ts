@@ -66,4 +66,12 @@ describe('TasksService', () => {
       expect(service.findOne(0).title).toBe('new_title');
     });
   });
+
+  describe('delete', () => {
+    it('should correctly remove task', () => {
+      service.delete(0);
+      expect(service.tasks.getValue().length).toBe(1);
+      expect(service.findOne(0)).toBeFalsy();
+    });
+  });
 });

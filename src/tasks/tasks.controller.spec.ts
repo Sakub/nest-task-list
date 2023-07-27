@@ -24,6 +24,10 @@ describe('TasksController', () => {
     expect(() => controller.getSingle(99)).toThrow(NotFoundException);
   });
 
+  it('should throw an exception if user tries to delete non-existing task', () => {
+    expect(() => controller.delete(99)).toThrow(NotFoundException);
+  });
+
   it('should throw an exception if user tries to update non-existing task', () => {
     expect(() =>
       controller.update(99, TypeValueFactoryService.createTask()),

@@ -31,4 +31,8 @@ export class TasksService {
     );
     return taskToReturn;
   }
+
+  public delete(id: number) {
+    this.tasks.next(this.tasks.getValue().filter((task) => task.id !== id));
+  }
 }

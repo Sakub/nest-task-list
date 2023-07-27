@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   NotFoundException,
   Param,
@@ -38,5 +39,11 @@ export class TasksController {
   public update(@Param('id') id: number, @Body() body: ITask): ITask {
     this.getSingle(id);
     return this._service.update(id, body);
+  }
+
+  @Delete(':id')
+  public delete(@Param('id') id: number) {
+    this.getSingle(id);
+    this._service.delete(id);
   }
 }
