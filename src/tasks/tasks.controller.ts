@@ -5,6 +5,7 @@ import {
   Get,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Post,
   Put,
 } from '@nestjs/common';
@@ -20,8 +21,8 @@ export class TasksController {
     return this._service.findAll();
   }
 
-  @Get(':id')
-  public getSingle(@Param('id') id: number): ITask {
+  @Get('/:id')
+  public getSingle(@Param('id', new ParseIntPipe()) id: number): ITask {
     const task = this._service.findOne(id);
     if (!task) throw new NotFoundException();
     return task;
@@ -36,13 +37,16 @@ export class TasksController {
   }
 
   @Put(':id')
-  public update(@Param('id') id: number, @Body() body: ITask): ITask {
+  public update(
+    @Param('id', new ParseIntPipe()) id: number,
+    @Body() body: ITask,
+  ): ITask {
     this.getSingle(id);
     return this._service.update(id, body);
   }
 
   @Delete(':id')
-  public delete(@Param('id') id: number) {
+  public delete(@Param('id', new ParseIntPipe()) id: number) {
     this.getSingle(id);
     this._service.delete(id);
   }
