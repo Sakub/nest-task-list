@@ -9,8 +9,11 @@ import {
   Post,
   Put,
 } from '@nestjs/common';
+
 import { ITask } from './task.model';
+import { TaskDto } from './task.dto';
 import { TasksService } from './tasks.service';
+
 import { TypeValueFactoryService } from '../type-value-factory/type-value-factory.service';
 
 @Controller('tasks')
@@ -21,7 +24,7 @@ export class TasksController {
     return this._service.findAll();
   }
 
-  @Get('/:id')
+  @Get(':id')
   public getSingle(@Param('id', new ParseIntPipe()) id: number): ITask {
     const task = this._service.findOne(id);
     if (!task) throw new NotFoundException();
@@ -39,7 +42,7 @@ export class TasksController {
   @Put(':id')
   public update(
     @Param('id', new ParseIntPipe()) id: number,
-    @Body() body: ITask,
+    @Body() body: TaskDto,
   ): ITask {
     this.getSingle(id);
     return this._service.update(id, body);
