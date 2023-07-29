@@ -14,8 +14,6 @@ import { ITask } from './task.model';
 import { TaskDto } from './task.dto';
 import { TasksService } from './tasks.service';
 
-import { TypeValueFactoryService } from '../type-value-factory/type-value-factory.service';
-
 @Controller('tasks')
 export class TasksController {
   constructor(private _service: TasksService) {}
@@ -32,11 +30,8 @@ export class TasksController {
   }
 
   @Post()
-  public create(@Body() body: ITask): ITask {
-    // creating mock task for now
-    const newTask = TypeValueFactoryService.createTask();
-    this._service.pushNew(newTask);
-    return newTask;
+  public create(@Body() body: TaskDto): ITask {
+    return this._service.pushNew(body);
   }
 
   @Put(':id')

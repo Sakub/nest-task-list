@@ -14,8 +14,13 @@ export class TasksService {
     return this.tasks.getValue().find((task) => task.id === id);
   }
 
-  public pushNew(task: ITask) {
-    this.tasks.next([...this.tasks.getValue(), task]);
+  public pushNew(task: ITask): ITask {
+    const newId = this.tasks.getValue().length ? this.findMaxId() + 1 : 0;
+    const newTask: ITask = { ...task, id: newId };
+
+    this.tasks.next([...this.tasks.getValue(), newTask]);
+
+    return newTask;
   }
 
   public update(id: number, body: ITask) {
@@ -34,5 +39,9 @@ export class TasksService {
 
   public delete(id: number) {
     this.tasks.next(this.tasks.getValue().filter((task) => task.id !== id));
+  }
+
+  private findMaxId(): number {
+    return Math.max(...this.tasks.getValue().map((v) => v.id));
   }
 }
