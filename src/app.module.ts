@@ -3,9 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TasksModule } from './tasks/tasks.module';
 import { TypeValueFactoryService } from './type-value-factory/type-value-factory.service';
+import { UsersModule } from './users/users.module';
 
 @Module({
-  imports: [TasksModule],
+  imports: [TasksModule, UsersModule],
   controllers: [AppController],
   providers: [AppService, TypeValueFactoryService],
 })

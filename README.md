@@ -3,7 +3,7 @@
 
 ### ToDo List:
 - [x] ~~Create Task Module~~
-- [ ] Create User Module
+- [x] ~~Create User Module~~
 - [ ] Create Logger Domain
 - [ ] Create Database Domain 
 - [ ] Create Auth Module 
