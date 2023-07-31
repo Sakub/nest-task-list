@@ -3,6 +3,7 @@ import { TasksController } from './tasks.controller';
 import { NotFoundException } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { TypeValueFactoryService } from '../type-value-factory/type-value-factory.service';
+import { LoggerModule } from '../logger/logger.module';
 
 describe('TasksController', () => {
   let controller: TasksController;
@@ -11,6 +12,7 @@ describe('TasksController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TasksController],
       providers: [TasksService],
+      imports: [LoggerModule],
     }).compile();
 
     controller = module.get<TasksController>(TasksController);

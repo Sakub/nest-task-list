@@ -13,10 +13,14 @@ import {
 import { ITask } from './task.model';
 import { TaskDto } from './task.dto';
 import { TasksService } from './tasks.service';
+import { ConsoleLoggerService } from '../logger/console-logger/console-logger.service';
 
 @Controller('tasks')
 export class TasksController {
-  constructor(private _service: TasksService) {}
+  constructor(
+    private _service: TasksService,
+    private logger: ConsoleLoggerService,
+  ) {}
   @Get()
   public getAll() {
     return this._service.findAll();
@@ -25,7 +29,10 @@ export class TasksController {
   @Get(':id')
   public getSingle(@Param('id', new ParseIntPipe()) id: number): ITask {
     const task = this._service.findOne(id);
-    if (!task) throw new NotFoundException();
+    if (!task) {
+      this.logger.error(`Tried to get task with id: ${id}`);
+      throw new NotFoundException();
+    }
     return task;
   }
 
