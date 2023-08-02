@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ILogger } from '../logger.model';
+import { ILogger, LogType } from '../logger.model';
 
 @Injectable()
 export class ConsoleLoggerService implements ILogger {
@@ -7,15 +7,19 @@ export class ConsoleLoggerService implements ILogger {
     return new Date().toLocaleString('en-US').split(', ').join(' ');
   }
 
-  error(message: string): void {
-    console.log(`[${this._getDate()}] ERROR - ${message}`);
+  private _log(logType: LogType, message: string): void {
+    console.log(`[${this._getDate()}] ${logType} - ${message}`);
   }
 
-  info(message: string): void {
-    console.log(`[${this._getDate()}] INFO - ${message}`);
+  public error(message: string): void {
+    this._log(LogType.ERROR, message);
   }
 
-  warning(message: string): void {
-    console.log(`[${this._getDate()}] WARNING - ${message}`);
+  public info(message: string): void {
+    this._log(LogType.INFO, message);
+  }
+
+  public warning(message: string): void {
+    this._log(LogType.WARNING, message);
   }
 }

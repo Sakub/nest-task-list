@@ -4,7 +4,7 @@
 ### ToDo List:
 - [x] ~~Create Task Module~~
 - [x] ~~Create User Module~~
-- [ ] Create Logger Domain
+- [x] ~~Create Logger Domain~~
 - [ ] Create Database Domain 
 - [ ] Create Auth Module 
 - [ ] Connect data with Database 

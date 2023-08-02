@@ -11,10 +11,14 @@ import {
 import { IUser } from './user.model';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './user.dto';
+import { ConsoleLoggerService } from '../logger/console-logger/console-logger.service';
 
 @Controller('users')
 export class UsersController {
-  constructor(private _service: UsersService) {}
+  constructor(
+    private _service: UsersService,
+    private _logger: ConsoleLoggerService,
+  ) {}
 
   @Get()
   public getAll(): IUser[] {
@@ -24,7 +28,10 @@ export class UsersController {
   @Get(':id')
   public getSingle(@Param('id', new ParseIntPipe()) id: number): IUser {
     const user = this._service.findOne(id);
-    if (!user) throw new NotFoundException();
+    if (!user) {
+      this._logger.error(`Tries to fetch user with id: ${id}`);
+      throw new NotFoundException();
+    }
     return user;
   }
 

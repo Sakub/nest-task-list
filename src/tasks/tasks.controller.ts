@@ -19,7 +19,7 @@ import { ConsoleLoggerService } from '../logger/console-logger/console-logger.se
 export class TasksController {
   constructor(
     private _service: TasksService,
-    private logger: ConsoleLoggerService,
+    private _logger: ConsoleLoggerService,
   ) {}
   @Get()
   public getAll() {
@@ -30,7 +30,7 @@ export class TasksController {
   public getSingle(@Param('id', new ParseIntPipe()) id: number): ITask {
     const task = this._service.findOne(id);
     if (!task) {
-      this.logger.error(`Tried to get task with id: ${id}`);
+      this._logger.error(`Tried to get task with id: ${id}`);
       throw new NotFoundException();
     }
     return task;
