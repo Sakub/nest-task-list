@@ -5,6 +5,7 @@ import { NotFoundException } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { UpdateUserDto } from './user.dto';
 import { validate } from 'class-validator';
+import { MockServiceFactoryService } from '../mock-service-factory/mock-service-factory.service';
 
 describe('UsersController', () => {
   let controller: UsersController;
@@ -12,7 +13,13 @@ describe('UsersController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
-      providers: [UsersService],
+      providers: [
+        UsersService,
+        {
+          provide: 'ConsoleLogger',
+          useValue: MockServiceFactoryService.createMockLoggerService(),
+        },
+      ],
     }).compile();
 
     controller = module.get<UsersController>(UsersController);

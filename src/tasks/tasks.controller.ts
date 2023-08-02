@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Inject,
   NotFoundException,
   Param,
   ParseIntPipe,
@@ -13,13 +14,13 @@ import {
 import { ITask } from './task.model';
 import { TaskDto } from './task.dto';
 import { TasksService } from './tasks.service';
-import { ConsoleLoggerService } from '../logger/console-logger/console-logger.service';
+import { ILogger } from '../logger/logger.model';
 
 @Controller('tasks')
 export class TasksController {
   constructor(
     private _service: TasksService,
-    private _logger: ConsoleLoggerService,
+    @Inject('ConsoleLogger') private _logger: ILogger,
   ) {}
   @Get()
   public getAll() {

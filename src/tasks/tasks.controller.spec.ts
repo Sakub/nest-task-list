@@ -3,7 +3,7 @@ import { TasksController } from './tasks.controller';
 import { NotFoundException } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { TypeValueFactoryService } from '../type-value-factory/type-value-factory.service';
-import { LoggerModule } from '../logger/logger.module';
+import { MockServiceFactoryService } from '../mock-service-factory/mock-service-factory.service';
 
 describe('TasksController', () => {
   let controller: TasksController;
@@ -11,8 +11,13 @@ describe('TasksController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TasksController],
-      providers: [TasksService],
-      imports: [LoggerModule],
+      providers: [
+        TasksService,
+        {
+          provide: 'ConsoleLogger',
+          useValue: MockServiceFactoryService.createMockLoggerService(),
+        },
+      ],
     }).compile();
 
     controller = module.get<TasksController>(TasksController);

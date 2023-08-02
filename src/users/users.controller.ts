@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Inject,
   NotFoundException,
   Param,
   ParseIntPipe,
@@ -11,13 +12,13 @@ import {
 import { IUser } from './user.model';
 import { UsersService } from './users.service';
 import { UpdateUserDto } from './user.dto';
-import { ConsoleLoggerService } from '../logger/console-logger/console-logger.service';
+import { ILogger } from '../logger/logger.model';
 
 @Controller('users')
 export class UsersController {
   constructor(
     private _service: UsersService,
-    private _logger: ConsoleLoggerService,
+    @Inject('ConsoleLogger') private _logger: ILogger,
   ) {}
 
   @Get()
