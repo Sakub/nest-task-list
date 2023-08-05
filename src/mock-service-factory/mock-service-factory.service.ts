@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ILogger } from '../logger/logger.model';
+import { IUserService } from '../users/user.model';
 
 @Injectable()
 export class MockServiceFactoryService {
@@ -8,6 +9,25 @@ export class MockServiceFactoryService {
       error: jest.fn(),
       info: jest.fn(),
       warning: jest.fn(),
+    };
+  }
+
+  public static createMockUserService(): IUserService {
+    return {
+      delete: jest.fn().mockResolvedValue({ affected: 1 }),
+      findAll: jest.fn().mockResolvedValue([]),
+      update: jest.fn().mockResolvedValue({ affected: 0 }),
+      findOne: jest.fn().mockResolvedValue({ affected: 0 }),
+    };
+  }
+
+  public static createMockRepository() {
+    return {
+      delete: jest.fn(),
+      find: jest.fn(),
+      findBy: jest.fn(),
+      findOneBy: jest.fn(),
+      update: jest.fn(),
     };
   }
 }

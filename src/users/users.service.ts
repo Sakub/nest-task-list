@@ -1,39 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { IUser } from './user.model';
-import { BehaviorSubject } from 'rxjs';
+import { IUserService } from './user.model';
 import { UpdateUserDto } from './user.dto';
+import { DeleteResult, Repository, UpdateResult } from 'typeorm';
+import { User } from './user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
-export class UsersService {
-  public users: BehaviorSubject<IUser[]> = new BehaviorSubject<IUser[]>([]);
-  findAll(): IUser[] {
-    return this.users.getValue();
+export class UsersService implements IUserService {
+  constructor(@InjectRepository(User) private repository: Repository<User>) {}
+
+  public findAll(): Promise<User[]> {
+    return this.repository.find();
   }
 
-  findOne(id: number): IUser {
-    return this.users.getValue().find((user) => user.id === id);
+  public findOne(id: number): Promise<User | undefined> {
+    return this.repository.findOneBy({ id });
   }
 
-  public update(id: number, body: UpdateUserDto) {
-    let userToReturn: IUser;
-    this.users.next(
-      this.users.getValue().map((user) => {
-        if (user.id === id) {
-          userToReturn = {
-            ...body,
-            id,
-            password: user.password,
-            username: user.username,
-          };
-          return userToReturn;
-        }
-        return user;
-      }),
-    );
-    return userToReturn;
+  public update(id: number, body: UpdateUserDto): Promise<UpdateResult> {
+    return this.repository.update(id, body);
   }
 
-  delete(id: number) {
-    this.users.next(this.users.getValue().filter((user) => user.id !== id));
+  public delete(id: number): Promise<DeleteResult> {
+    return this.repository.delete(id);
   }
 }

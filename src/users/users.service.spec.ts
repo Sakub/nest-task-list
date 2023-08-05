@@ -1,13 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsersService } from './users.service';
-import { TypeValueFactoryService } from '../type-value-factory/type-value-factory.service';
+import { MockServiceFactoryService } from '../mock-service-factory/mock-service-factory.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { User } from './user.entity';
+import { UpdateUserDto } from './user.dto';
 
 describe('UsersService', () => {
   let service: UsersService;
+  const repository = MockServiceFactoryService.createMockRepository();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UsersService],
+      providers: [
+        UsersService,
+        { provide: getRepositoryToken(User), useValue: repository },
+      ],
     }).compile();
 
     service = module.get<UsersService>(UsersService);
@@ -18,34 +25,44 @@ describe('UsersService', () => {
   });
 
   describe('findOne', () => {
-    it('should return undefined if id of not existing user is provided', () => {
-      expect(service.findOne(0)).toBe(undefined);
+    it('should return undefined if id of not existing user is provided', async () => {
+      const result = await service.findOne(0);
+      expect(repository.findOneBy).toHaveBeenCalledWith({ id: 0 });
+      expect(result).toBe(undefined);
     });
 
-    it('should return user if id of existing user is provided', () => {
-      service.users.next([TypeValueFactoryService.createUser()]);
-      expect(service.findOne(0)).toBeTruthy();
+    it('should return user if id of existing user is provided', async () => {
+      repository.findOneBy.mockResolvedValue({
+        email: '',
+        id: 0,
+        nickname: '',
+        password: '',
+        username: '',
+      });
+      await expect(service.findOne(0)).resolves.toBeTruthy();
     });
   });
 
   describe('update', () => {
-    it('should correctly update user', () => {
-      service.users.next([TypeValueFactoryService.createUser()]);
-      service.update(0, {
-        email: 'mail@mail.com',
-        nickname: 'updatedNickname',
-      });
-
-      expect(service.findOne(0).email).toBe('mail@mail.com');
-      expect(service.findOne(0).nickname).toBe('updatedNickname');
+    it('should call repository.update with valid parameters', () => {
+      const id = 0;
+      const payload: UpdateUserDto = {
+        email: 'email@email.com',
+        nickname: 'nickname',
+      };
+      service.update(0, payload);
+      expect(repository.update).toHaveBeenCalledWith(id, payload);
     });
   });
 
   describe('delete', () => {
-    it('should correctly delete user', () => {
-      service.users.next([TypeValueFactoryService.createUser()]);
+    it('should call repository.delete with valid id', () => {
       service.delete(0);
-      expect(service.findAll()).toStrictEqual([]);
+      expect(repository.delete).toHaveBeenCalledWith(0);
     });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 });

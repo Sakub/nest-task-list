@@ -9,32 +9,43 @@ import { MockServiceFactoryService } from '../mock-service-factory/mock-service-
 
 describe('UsersController', () => {
   let controller: UsersController;
+  let service: UsersService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UsersController],
       providers: [
-        UsersService,
         {
           provide: 'ConsoleLogger',
           useValue: MockServiceFactoryService.createMockLoggerService(),
+        },
+        {
+          provide: UsersService,
+          useValue: MockServiceFactoryService.createMockUserService(),
         },
       ],
     }).compile();
 
     controller = module.get<UsersController>(UsersController);
+    service = module.get<UsersService>(UsersService);
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should throw an exception if user tries to find non-existing user', () => {
-    expect(() => controller.getSingle(99)).toThrow(NotFoundException);
+  it('should throw an exception if user tries to find non-existing user', async () => {
+    (service.findOne as jest.Mock).mockResolvedValue(null);
+    await expect(() => controller.getSingle(99)).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
-  it('should throw an exception if user tries to delete non-existing user', () => {
-    expect(() => controller.delete(99)).toThrow(NotFoundException);
+  it('should throw an exception if user tries to delete non-existing user', async () => {
+    (service.delete as jest.Mock).mockResolvedValue({ affected: 0 });
+    await expect(() => controller.delete(99)).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   describe('update', () => {
@@ -89,12 +100,17 @@ describe('UsersController', () => {
     });
 
     it('should throw an exception if user tries to update non-existing user', () => {
-      expect(() =>
+      (service.update as jest.Mock).mockResolvedValue({ affected: 0 });
+      expect(async () =>
         controller.update(99, {
           email: 'mail@mail.com',
           nickname: 'username',
         }),
-      ).toThrow(NotFoundException);
+      ).rejects.toThrow(NotFoundException);
     });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 });
