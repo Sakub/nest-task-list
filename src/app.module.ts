@@ -9,6 +9,7 @@ import { TypeValueFactoryService } from './type-value-factory/type-value-factory
 import { UsersModule } from './users/users.module';
 import { LoggerModule } from './logger/logger.module';
 import { MockServiceFactoryService } from './mock-service-factory/mock-service-factory.service';
+import { User } from './users/user.entity';
 
 @Module({
   imports: [
@@ -26,7 +27,7 @@ import { MockServiceFactoryService } from './mock-service-factory/mock-service-f
           password: config.get<string>('DATABASE_PASSWORD'),
           port: config.get<number>('DATABASE_PORT'),
           database: config.get<string>('DATABASE_NAME'),
-          entities: [],
+          entities: [User],
           synchronize: true,
         };
       },

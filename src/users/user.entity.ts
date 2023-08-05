@@ -2,19 +2,19 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { IUser } from './user.model';
 
 @Entity()
-export class UserEntity implements IUser {
+export class User implements IUser {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ type: 'varchar', unique: true })
   email: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   nickname: string;
 
-  @Column()
+  @Column({ type: 'varchar' })
   password: string;
 
-  @Column()
+  @Column({ type: 'varchar', unique: true })
   username: string;
 }
