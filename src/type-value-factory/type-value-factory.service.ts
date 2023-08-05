@@ -9,7 +9,7 @@ export class TypeValueFactoryService {
       id: 0,
       completed: false,
       title: '',
-      userId: 0,
+      user: 0,
     };
   }
 

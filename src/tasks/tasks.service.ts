@@ -1,47 +1,30 @@
 import { Injectable } from '@nestjs/common';
-import { BehaviorSubject } from 'rxjs';
-import { ITask } from './task.model';
+import { InjectRepository } from '@nestjs/typeorm';
+import { DeleteResult, InsertResult, Repository, UpdateResult } from 'typeorm';
+import { Task } from './task.entity';
+import { TaskDto } from './task.dto';
 
 @Injectable()
 export class TasksService {
-  public tasks: BehaviorSubject<ITask[]> = new BehaviorSubject([]);
+  constructor(@InjectRepository(Task) private _repository: Repository<Task>) {}
 
-  public findAll(): ITask[] {
-    return this.tasks.getValue();
+  public findAll(): Promise<Task[]> {
+    return this._repository.find();
   }
 
-  public findOne(id: number): ITask | undefined {
-    return this.tasks.getValue().find((task) => task.id === id);
+  public findOne(id: number): Promise<Task | undefined> {
+    return this._repository.findOneBy({ id });
   }
 
-  public pushNew(task: ITask): ITask {
-    const newId = this.tasks.getValue().length ? this.findMaxId() + 1 : 0;
-    const newTask: ITask = { ...task, id: newId };
-
-    this.tasks.next([...this.tasks.getValue(), newTask]);
-
-    return newTask;
+  public async create(task: TaskDto): Promise<InsertResult> {
+    return this._repository.insert(task);
   }
 
-  public update(id: number, body: ITask) {
-    let taskToReturn: ITask;
-    this.tasks.next(
-      this.tasks.getValue().map((task) => {
-        if (task.id === id) {
-          taskToReturn = { ...body, id };
-          return taskToReturn;
-        }
-        return task;
-      }),
-    );
-    return taskToReturn;
+  public update(id: number, body: TaskDto): Promise<UpdateResult> {
+    return this._repository.update({ id }, body);
   }
 
-  public delete(id: number) {
-    this.tasks.next(this.tasks.getValue().filter((task) => task.id !== id));
-  }
-
-  private findMaxId(): number {
-    return Math.max(...this.tasks.getValue().map((v) => v.id));
+  public delete(id: number): Promise<DeleteResult> {
+    return this._repository.delete({ id });
   }
 }

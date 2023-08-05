@@ -5,5 +5,5 @@ export class TaskDto implements ITask {
   id: number;
   @IsNotEmpty() completed: boolean;
   @IsNotEmpty() title: string;
-  @IsNotEmpty() userId: number;
+  @IsNotEmpty() user: number;
 }

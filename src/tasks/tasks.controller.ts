@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Inject,
+  InternalServerErrorException,
   NotFoundException,
   Param,
   ParseIntPipe,
@@ -11,10 +12,17 @@ import {
   Put,
 } from '@nestjs/common';
 
-import { ITask } from './task.model';
 import { TaskDto } from './task.dto';
 import { TasksService } from './tasks.service';
 import { ILogger } from '../logger/logger.model';
+import { Task } from './task.entity';
+import {
+  DeleteResult,
+  InsertResult,
+  QueryFailedError,
+  UpdateResult,
+} from 'typeorm';
+import { InvalidForeignKeyException } from '../exceptions/InvalidForeignKeyException';
 
 @Controller('tasks')
 export class TasksController {
@@ -23,13 +31,15 @@ export class TasksController {
     @Inject('ConsoleLogger') private _logger: ILogger,
   ) {}
   @Get()
-  public getAll() {
-    return this._service.findAll();
+  public async getAll(): Promise<Task[]> {
+    return await this._service.findAll();
   }
 
   @Get(':id')
-  public getSingle(@Param('id', new ParseIntPipe()) id: number): ITask {
-    const task = this._service.findOne(id);
+  public async getSingle(
+    @Param('id', new ParseIntPipe()) id: number,
+  ): Promise<Task | undefined> {
+    const task = await this._service.findOne(id);
     if (!task) {
       this._logger.error(`Tried to get task with id: ${id}`);
       throw new NotFoundException();
@@ -38,22 +48,39 @@ export class TasksController {
   }
 
   @Post()
-  public create(@Body() body: TaskDto): ITask {
-    return this._service.pushNew(body);
+  public async create(@Body() body: TaskDto): Promise<InsertResult> {
+    try {
+      return await this._service.create(body);
+    } catch (e) {
+      if (
+        e instanceof QueryFailedError &&
+        e.message.includes('foreign key constraint fails')
+      ) {
+        this._logger.error(
+          `Tried to assign task to user which does not exist, user id: ${body.user}`,
+        );
+        throw new InvalidForeignKeyException('user');
+      }
+      throw new InternalServerErrorException();
+    }
   }
 
   @Put(':id')
-  public update(
+  public async update(
     @Param('id', new ParseIntPipe()) id: number,
     @Body() body: TaskDto,
-  ): ITask {
-    this.getSingle(id);
-    return this._service.update(id, body);
+  ): Promise<UpdateResult> {
+    const result = await this._service.update(id, body);
+    if (result.affected === 0) throw new NotFoundException();
+    return result;
   }
 
   @Delete(':id')
-  public delete(@Param('id', new ParseIntPipe()) id: number) {
-    this.getSingle(id);
-    this._service.delete(id);
+  public async delete(
+    @Param('id', new ParseIntPipe()) id: number,
+  ): Promise<DeleteResult> {
+    const result = await this._service.delete(id);
+    if (result.affected === 0) throw new NotFoundException();
+    return result;
   }
 }
