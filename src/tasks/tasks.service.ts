@@ -3,9 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, InsertResult, Repository, UpdateResult } from 'typeorm';
 import { Task } from './task.entity';
 import { TaskDto } from './task.dto';
+import { ITaskService } from './task.model';
 
 @Injectable()
-export class TasksService {
+export class TasksService implements ITaskService {
   constructor(@InjectRepository(Task) private _repository: Repository<Task>) {}
 
   public findAll(): Promise<Task[]> {

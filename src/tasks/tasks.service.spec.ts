@@ -1,77 +1,72 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TasksService } from './tasks.service';
 import { TypeValueFactoryService } from '../type-value-factory/type-value-factory.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Task } from './task.entity';
+import { MockServiceFactoryService } from '../mock-service-factory/mock-service-factory.service';
 
 describe('TasksService', () => {
   let service: TasksService;
+  const repository = MockServiceFactoryService.createMockRepository();
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [TasksService],
+      providers: [
+        TasksService,
+        { provide: getRepositoryToken(Task), useValue: repository },
+      ],
     }).compile();
 
     service = module.get<TasksService>(TasksService);
-    service.tasks.next([
-      TypeValueFactoryService.createTask(),
-      { ...TypeValueFactoryService.createTask(), id: 1 },
-    ]);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  describe('findAll', () => {
-    it('should return valid list of tasks', () => {
-      const taskList = service.findAll();
-      expect(taskList.length).toBe(2);
-      expect(taskList[0]).toStrictEqual(TypeValueFactoryService.createTask());
-      expect(taskList[1]).toStrictEqual({
-        ...TypeValueFactoryService.createTask(),
-        id: 1,
-      });
-    });
-  });
-
   describe('findOne', () => {
-    it('should return correct task if task with provided if was found', () => {
-      const task = service.findOne(0);
+    afterEach(() => {
+      jest.resetAllMocks();
+    });
+
+    it('should return task if task with provided if was found', async () => {
+      repository.findOneBy.mockResolvedValue(
+        TypeValueFactoryService.createTask(),
+      );
+      const task = await service.findOne(0);
       expect(task).toBeTruthy();
     });
 
-    it('should return undefined if task with provided id was not found', () => {
-      const task = service.findOne(99);
+    it('should return undefined if task with provided id was not found', async () => {
+      const task = await service.findOne(99);
       expect(task).toBe(undefined);
     });
   });
 
   describe('create', () => {
-    it('should correctly create and save task into list', () => {
-      service.pushNew({
-        ...TypeValueFactoryService.createTask(),
-        title: 'new task',
-      });
-      expect(
-        service.tasks.getValue().find((task) => task.title === 'new task'),
-      ).toBeTruthy();
+    it('repository.insert should be called with valid parameter', () => {
+      const payload = TypeValueFactoryService.createTask();
+      service.create(payload);
+      expect(repository.insert).toBeCalledWith(payload);
     });
   });
 
   describe('update', () => {
-    it('should correctly update task title property', () => {
-      service.update(0, {
-        ...TypeValueFactoryService.createTask(),
-        title: 'new_title',
-      });
-      expect(service.findOne(0).title).toBe('new_title');
+    it('repository.update should be called with valid parameters', () => {
+      const payload = TypeValueFactoryService.createTask();
+      service.update(0, payload);
+      expect(repository.update).toBeCalledWith({ id: 0 }, payload);
     });
   });
 
   describe('delete', () => {
-    it('should correctly remove task', () => {
+    it('repository.delete should be called with valid parameter', () => {
       service.delete(0);
-      expect(service.tasks.getValue().length).toBe(1);
-      expect(service.findOne(0)).toBeFalsy();
+      expect(repository.delete).toBeCalledWith({ id: 0 });
     });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 });

@@ -41,7 +41,7 @@ export class FileLoggerService implements ILogger {
       );
     } catch (error) {
       console.log(
-        `Error while logging occured: ${error}. Tried to log: "${message}" on ${logType} level.`,
+        `Error while logging occurred: ${error}. Tried to log: "${message}" on ${logType} level.`,
       );
     }
   }

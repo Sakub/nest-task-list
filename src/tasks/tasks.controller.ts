@@ -61,6 +61,11 @@ export class TasksController {
         );
         throw new InvalidForeignKeyException('user');
       }
+      this._logger.error(
+        `Unexpected error occurred on Task POST method, request payload: ${JSON.stringify(
+          body,
+        )}, error: ${e}`,
+      );
       throw new InternalServerErrorException();
     }
   }
